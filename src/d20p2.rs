@@ -21,6 +21,27 @@ fn dist(a: (i32, i32), b: (i32, i32)) -> i32 {
     (a.0 - b.0).abs() + (a.1 - b.1).abs()
 }
 
+fn get_possible_squares(pos: (i32, i32)) -> [(i32, i32); 836] { // 836 = 4 * sum(2..20)
+    let mut squares = [(-1, -1); 836];
+    let (y, x) = pos;
+    let mut i = 0;
+    for d in 2..21 {
+        let mut shift1 = d;
+        let mut shift2 = 0;
+        for _ in 0..d {
+            squares[i] = (y + shift1, x + shift2);
+            squares[i+1] = (y - shift2, x + shift1);
+            squares[i+2] = (y - shift1, x - shift2);
+            squares[i+3] = (y + shift2, x - shift1);
+            
+            shift1 -= 1;
+            shift2 += 1;
+            i += 4;
+        }
+    }
+    squares
+}
+
 fn main() {
     let input = get_input();
     let start = Instant::now();
@@ -60,8 +81,8 @@ fn main() {
 
     let mut cheat_count = 0;
     for &pos1 in positions.keys() {
-        for &pos2 in positions.keys() {
-            if dist(pos1, pos2) <= 20 {
+        for pos2 in get_possible_squares(pos1) {
+            if positions.contains_key(&pos2) {
                 if *positions.get(&pos1).unwrap() + 100 + dist(pos1, pos2) <= *positions.get(&pos2).unwrap() {
                     cheat_count += 1;
                 }
@@ -69,6 +90,6 @@ fn main() {
         }
     }
 
-    // 6.28s
+    // 6.28s -> 3.25s and definitely scales better as the track gets bigger
     println!("{}\nTime: {:.2?}", cheat_count, start.elapsed());
 }
