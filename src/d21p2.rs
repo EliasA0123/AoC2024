@@ -22,7 +22,6 @@ fn dist(a: (i32, i32), b: (i32, i32)) -> i32 {
 }
 
 fn get_all_paths(prev_instr: (i32, i32), new_instr: (i32, i32), locs: &HashMap<char, (i32, i32)>) -> HashSet<Vec<char>> {
-    // println!("get_all_paths: {:?} -> {:?}", prev_instr, new_instr);
     if dist(prev_instr, new_instr) == 0 {
         return HashSet::from([vec!['A']]);
     }
@@ -52,23 +51,18 @@ fn get_all_paths(prev_instr: (i32, i32), new_instr: (i32, i32), locs: &HashMap<c
             all_paths.insert(path);
         }
     }
-    
-    // println!("result: {:?}", all_paths);
     all_paths
 }
 
 fn get_best_path_len(prev_instr: (i32, i32), new_instr: (i32, i32), num_locs: &HashMap<char, (i32, i32)>, dir_locs: &HashMap<char, (i32, i32)>, known_lens: &mut HashMap<((i32, i32), (i32, i32), usize), usize>, depth: usize) -> usize {
-    // println!("get_best_path_len: {:?} -> {:?} (depth {})", prev_instr, new_instr, depth);
     let opts: HashSet<Vec<char>>;
     if depth == 0 {
         opts = get_all_paths(prev_instr, new_instr, num_locs);
     } else {
         opts = get_all_paths(prev_instr, new_instr, dir_locs);
     }
-    // println!("{:?}", opts);
 
     if depth == 25 {
-        // println!("min: {}", opts.iter().map(|path| path.len()).min().unwrap());
         return opts.into_iter().map(|path| path.len()).min().unwrap();
     }
 
@@ -83,7 +77,6 @@ fn get_best_path_len(prev_instr: (i32, i32), new_instr: (i32, i32), num_locs: &H
             }
             else {
                 let instr_len = get_best_path_len(prev_instr, instr, num_locs, dir_locs, known_lens, depth + 1);
-                // println!("{:?} -> {:?} = {}", prev_instr, instr, instr_len);
                 known_lens.insert((prev_instr, instr, depth), instr_len);
                 len += instr_len;
             }
@@ -95,16 +88,6 @@ fn get_best_path_len(prev_instr: (i32, i32), new_instr: (i32, i32), num_locs: &H
     }
     return min;
 }
-
-// fn expand(path: String, expansions: &HashMap<(char, char), &str>) -> String {
-//     let mut expanded = String::new();
-//     let mut prev_dir = 'A';
-//     for dir in path.chars() {
-//         expanded += *expansions.get(&(prev_dir, dir)).unwrap();
-//         prev_dir = dir;
-//     }
-//     expanded
-// }
 
 fn main() {
     let input = get_input();
@@ -143,8 +126,6 @@ fn main() {
             len += get_best_path_len(prev_instr, instr, &num_locs, &dir_locs, &mut known_lens, 0);
             prev_instr = instr;
         }
-
-        // println!("{}, {}", code_num, len);
         complexity += len * code_num;
     }
 
